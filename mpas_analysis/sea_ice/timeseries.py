@@ -220,7 +220,10 @@ def seaice_timeseries(config, streamMap=None, variableMap=None):
                                                          yearoffset=yr_offset))
                 ds_obs = remove_repeated_time_index(ds_obs)
                 var_nh_obs = ds_obs.IceArea
+                print "var_nh_obs1=",var_nh_obs['Time'].values
                 var_nh_obs = replicate_cycle(var_nh, var_nh_obs)
+                print "var_nh_obs2=",var_nh_obs['Time'].values
+                print "var_nh=",var_nh['Time'].values
 
                 ds_obs = xr.open_mfdataset(
                     obs_filenameSH,
@@ -327,15 +330,29 @@ def replicate_cycle(ds, ds_toreplicate):
     dsshift = ds_toreplicate.copy()
     shiftT = ((dsshift.Time.max() - dsshift.Time.min()) +
               (dsshift.Time.isel(Time=1) - dsshift.Time.isel(Time=0)))
+    #print dsshift.Time.max() - dsshift.Time.min(),dsshift.Time.isel(Time=1) - dsshift.Time.isel(Time=0)
+    print "ds.Time.min=",ds.Time.min().values
+    print "ds_toreplicate.Time.min=",ds_toreplicate.Time.min().values
+    #print "diff between 2 above (days)=",(ds.Time.min().values-ds_toreplicate.Time.min().values)/(1e9*86400*365)
     startIndex = int(np.floor((ds.Time.min()-ds_toreplicate.Time.min())/shiftT))
     endIndex = int(np.ceil((ds.Time.max()-ds_toreplicate.Time.min())/shiftT))
-    dsshift['Time'] = dsshift['Time'] + startIndex*shiftT
+    dsshift['Time'] = dsshift['Time'] + startIndex*shiftT # mv testing
+    #dsshift['Time'] = dsshift['Time'] + startIndex*shiftT - (dsshift.Time.isel(Time=1) - dsshift.Time.isel(Time=0)) # mv testing
+    #dsshift['Time'] = dsshift['Time'] + startIndex*(shiftT - (dsshift.Time.isel(Time=1) - dsshift.Time.isel(Time=0))) # mv testing
+    print dsshift.Time.values
+
+    #print np.arange(nT) # mv testing
+    #print range(startIndex, endIndex) # mv testing
 
     # replicate cycle:
     for cycleIndex in range(startIndex, endIndex):
         dsnew = ds_toreplicate.copy()
         dsnew['Time'] = dsnew['Time'] + (cycleIndex+1)*shiftT
+        #dsnew['Time'] = dsnew['Time'] + (cycleIndex+1)*shiftT - (dsshift.Time.isel(Time=1) - dsshift.Time.isel(Time=0))
+        #dsnew['Time'] = dsnew['Time'] + (cycleIndex+1)*(shiftT - (dsshift.Time.isel(Time=1) - dsshift.Time.isel(Time=0)))
         dsshift = xr.concat([dsshift, dsnew], dim='Time')
     # constrict replicated ds_short to same time dimension as ds_long:
-    dsshift = dsshift.sel(Time=ds.Time.values, method='nearest')
+    #dsshift['Time'] = ds['Time'] # mv testing
+    print dsshift.Time.values
+    dsshift = dsshift.sel(Time=ds.Time.values, method='nearest') # mv testing
     return dsshift
