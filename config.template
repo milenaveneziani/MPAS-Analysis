@@ -1,88 +1,109 @@
 [case]
-# ACME case configuration
-casename = 20160805v0atm.A_WCYCL1850_v0atm.ne30_oEC.edison.alpha7_00
-native_res = ne30
-short_term_archive = 0
-ref_casename_v0 = B1850C5_ne30_v0.4
+
+# casename is a name that identifies the simulation being analyzed.
+casename = casename
+# ref_casename is the name of a reference run to compare agains (or None
+# to turn off comparison with a reference, e.g. if no reference case is
+# available)
+ref_casename = None
 
 [input]
-# names of namelist and streams files
+
+# directory containing model results
+basedir = /dir/to/model/output
+# names of namelist and streams files.  If not in basedir, give full path
 ocean_namelist_filename = mpas-o_in
 ocean_streams_filename = streams.ocean
 seaice_namelist_filename = mpas-cice_in
 seaice_streams_filename = streams.cice
 
-[paths]
-# paths to simulation and observational datasets
-archive_dir = /scratch1/scratchdirs/petercal/ACME_simulations
-archive_dir_ocn = /scratch1/scratchdirs/petercal/ACME_simulations/20160805v0atm.A_WCYCL1850_v0atm.ne30_oEC.edison.alpha7_00/run
-scratch_dir = /global/project/projectdirs/acme/xylar/20160805v0atm.A_WCYCL1850_v0atm.ne30_oEC.edison.alpha7_00.test.pp
-plots_dir = /global/project/projectdirs/acme/xylar/coupled_diagnostics_20160805v0atm.A_WCYCL1850_v0atm.ne30_oEC.edison.alpha7_00-20160520.A_WCYCL1850.ne30_oEC.edison.alpha6_01
-log_dir = /global/project/projectdirs/acme/xylar/coupled_diagnostics_20160805v0atm.A_WCYCL1850_v0atm.ne30_oEC.edison.alpha7_00-20160520.A_WCYCL1850.ne30_oEC.edison.alpha6_01.logs
-obs_ocndir = /global/project/projectdirs/acme/observations/Ocean
-obs_sstdir = /global/project/projectdirs/acme/observations/Ocean/SST
-obs_sssdir = /global/project/projectdirs/acme/observations/Ocean/SSS
-obs_mlddir = /global/project/projectdirs/acme/observations/Ocean/MLD
-obs_seaicedir = /global/project/projectdirs/acme/observations/SeaIce
-ref_archive_v0_ocndir = /global/project/projectdirs/acme/ACMEv0_lowres/B1850C5_ne30_v0.4/ocn/postprocessing
-ref_archive_v0_seaicedir = /global/project/projectdirs/acme/ACMEv0_lowres/B1850C5_ne30_v0.4/ice/postprocessing
+[output]
 
-[data]
-# paths to mesh and mapping files
-mpas_remapfile = /global/project/projectdirs/acme/mapping/maps/map_oEC60to30_TO_0.5x0.5degree_blin.160412.nc
-pop_remapfile = /global/project/projectdirs/acme/mapping/maps/map_gx1v6_TO_0.5x0.5degree_blin.160413.nc
-# path to climotology dataset
-mpas_climodir = /global/project/projectdirs/acme/xylar/20160805v0atm.A_WCYCL1850_v0atm.ne30_oEC.edison.alpha7_00.test.pp
+# directory where analysis should be written
+basedir = /dir/to/analysis/output
 
-[seaIceData]
-# paths to sea-ice observational datasets
-obs_iceareaNH = /global/project/projectdirs/acme/observations/SeaIce/IceArea_timeseries/iceAreaNH_climo.nc
-obs_iceareaSH = /global/project/projectdirs/acme/observations/SeaIce/IceArea_timeseries/iceAreaSH_climo.nc
-obs_icevolNH = /global/project/projectdirs/acme/observations/SeaIce/PIOMAS/PIOMASvolume_monthly_climo.nc
-obs_icevolSH = none
+# subdirectories within basedir for analysis output
+scratch_subdir = scratch
+plots_subdir = plots
+logs_subdir = logs
+clim_subdir = clim
+
+# a list of which analyses to generate.  Valid names are:
+#   'ohc_timeseries', 'sst_timeseries', 'sst_modelvsobs', 'sss_modelvsobs',
+#   'mld_modelvsobs', 'seaice_timeseries', 'seaice_modelvsobs'
+# the following shortcuts exist:
+#   'all' -- all analyses will be run
+#   'all_timeseries' -- all time-series analyses will be run
+#   'all_modelvsobs' -- all analyses comparing model climatologies with
+#                       observatoins will be run
+#   'all_ocean' -- all ocean analyses will be run
+#   'all_seaice' -- all sea-ice analyses will be run
+#   'no_ohc_timeseries' -- skip the 'ohc_timeseries' (and similarly with the other analyses).
+#   'no_ocean', 'no_timeseries', etc. -- in analogy to 'all_*', skip the given category of analysis
+generate = ['all']
+
+# alternative examples that would perform all analysis except
+#   'ohc_timeseries'
+#generate = ['sst_timeseries', 'all_modelvsobs', 'all_seaice']
+#generate = ['all', 'no_ohc_timeseries']
+# Each subsequent list entry can be used to alter previous list entries. For
+# example, the following would produce all analyses except ocean model vs.
+# observations (albeit not in a very intuitive way):
+#generate = ['all', 'no_ocean', 'all_timeseries']
+
+[climatology]
+
+# the first year over which to average climotalogies
+start_year = 11
+# the last year over which to average climotalogies
+end_year = 20
+
+[time_series]
+
+# start and end years for timeseries analysis. Using out-of-bounds values
+#   like start_year = 1 and end_year = 9999 will be clipped to the valid range
+#   of years, and is a good way of insuring that all values are used.
+start_year = 1
+end_year = 9999
+
+[ocean_observations]
+
+# directory where ocean observations are stored
+basedir = /dir/to/ocean/observations
+sst_subdir = SST
+sss_subdir = SSS
+mld_subdir = MLD
+
+[ocean_reference]
+
+# directory where ocean reference simulation results are stored
+basedir = /dir/to/ocean/reference
+
+[seaice_observations]
+
+# directory where sea ice observations are stored
+basedir = /dir/to/seaice/observations
+areaNH = IceArea_timeseries/iceAreaNH_climo.nc
+areaSH = IceArea_timeseries/iceAreaSH_climo.nc
+volNH = PIOMAS/PIOMASvolume_monthly_climo.nc
+volSH = none
+
+[seaice_reference]
+
+# directory where sea ice reference simulation results are stored
+basedir = /dir/to/seaice/reference
 
 [time]
-# the first year over which to average climotologies
-climo_yr1 = 6
-# the last year over which to average climotologies
-climo_yr2 = 10
 # the offset year to be added to simulation years
 yr_offset = 1849
-# start and end years for timeseries analysis
-timeseries_yr1 = 1
-timeseries_yr2 = 9999
+
+[remap]
+
+# paths to mapping files (which will hopefully be eliminated soon)
+mpas_remapfile = /global/project/projectdirs/acme/mapping/maps/map_oEC60to30_TO_0.5x0.5degree_blin.160412.nc
 
 [ohc_timeseries]
-generate = 1
 
-[sst_timeseries]
-generate = 1
-
-[nino34_timeseries]
-generate = 0
-
-[mht_timeseries]
-generate = 0
-
-[moc_timeseries]
-generate = 0
-
-[sst_modelvsobs]
-generate = 1
-
-[sss_modelvsobs]
-generate = 1
-
-[mld_modelvsobs]
-generate = 1
-
-[seaice_timeseries]
-generate = 1
-
-[seaice_modelvsobs]
-generate = 1
-
-[ohc_timeseries]
 ## compare to output from another model run?
 #compare_with_model = True
 # compare to observations?
@@ -94,6 +115,7 @@ regionIndicesToPlot = [6]
 N_movavg = 12
 
 [sst_timeseries]
+
 ## compare to output from another model run?
 #compare_with_model = True
 # compare to observations?
@@ -105,6 +127,7 @@ regionIndicesToPlot = [6]
 N_movavg = 12
 
 [nino34_timeseries]
+
 ## compare to output from another model run?
 #compare_with_model = True
 # compare to observations?
@@ -114,6 +137,7 @@ compare_with_obs = True
 N_movavg = 12
 
 [mht_timeseries]
+
 ## compare to output from another model run?
 #compare_with_model = True
 # compare to observations?
@@ -123,6 +147,7 @@ compare_with_obs = True
 N_movavg = 12
 
 [moc_timeseries]
+
 ## compare to output from another model run?
 #compare_with_model = True
 # compare to observations?
@@ -132,6 +157,7 @@ compare_with_obs = True
 N_movavg = 12
 
 [seaice_timeseries]
+
 ## compare to output from another model run?
 #compare_with_model = True
 # compare to observations?
@@ -143,6 +169,7 @@ N_movavg = 1
 title_font_size = 18
 
 [sst_modelvsobs]
+
 # colormap for model/observations
 #cmapModelObs = viridis
 cmapModelObs = RdYlBu_r
@@ -165,6 +192,7 @@ clevsDiff = [-5, -3, -2, -1, 0, 1, 2, 3, 5]
 comparisonTimes =  ['JFM', 'JAS', 'ANN']
 
 [sss_modelvsobs]
+
 # colormap for model/observations
 #cmapModelObs = viridis
 cmapModelObs = RdYlBu_r
@@ -184,9 +212,10 @@ clevsDiff = [-3,-2,-1,-0.5,0.5,1,2,3]
 #clevsDiff = [-3,-2,-1,-0.5,0.5,1,2,3] # good for RdBu_r
 
 # Times for comparison times (Jan,Feb,Mar,Apr,May,Jun,Jul,Aug,Sep,Oct,Nov,Dec,JFM,AMJ,JAS,OND,ANN)
-comparisonTimes =  ['JFM','JAS','ANN']
+comparisonTimes =  ['JFM', 'JAS', 'ANN']
 
 [mld_modelvsobs]
+
 # colormap for model/observations
 cmapModelObs = viridis
 #cmapModelObs = RdYlBu_r
@@ -208,6 +237,7 @@ clevsDiff = [-175, -125, -75, -25, -10, 10, 25, 75, 125, 175]
 comparisonTimes = ['JFM', 'JAS', 'ANN']
 
 [seaice_modelvsobs]
+
 # colormap for model/observations
 cmapModelObs = inferno
 # colormap for differences
@@ -242,6 +272,7 @@ latmin_SH = -50
 lon0_SH = 180
 
 [regions]
+
 # list of region names (needs to be in the same order as region indices in
 # time-series stats)
 regions = ['arctic', 'equatorial', 'so', 'nino3', 'nino4', 'nino3.4', 'global']
@@ -250,6 +281,7 @@ regions = ['arctic', 'equatorial', 'so', 'nino3', 'nino4', 'nino3.4', 'global']
 plot_titles = ['Arctic', 'Equatorial (15S-15N)', 'Southern Ocean', 'Nino 3', 'Nino 4', 'Nino 3.4', 'Global Ocean']
 
 [plot]
+
 # set to true if you want plots to be displayed, rather than just written out
 # Note: displayToScreen = True seems to hang on Edison on large data sets,
 # so suggested use is just for debugging either locally or with small data sets
