@@ -22,17 +22,11 @@ from mpas_analysis.sea_ice.variable_stream_map import seaIceStreamMap, \
     seaIceVariableMap
 
 
-def path_existence(config, section, option, ignorestr=None):  # {{{
-    inpath = config.get(section, option)
+def path_existence(config, inpath):  # {{{
     if not (os.path.isdir(inpath) or os.path.isfile(inpath)):
-        # assumes that path locations of ignorestr won't return an error, e.g.,
-        # ignorestr="none" is a key word to indicate the path or file is
-        # optional and is not needed
-        if inpath == ignorestr:
-            return False
         errmsg = "Path %s not found. Exiting..." % inpath
         raise SystemExit(errmsg)
-    return inpath  # }}}
+# }}}
 
 
 def makedirs(inpath):  # {{{
@@ -71,32 +65,34 @@ def check_generate(config, analysisName, mpasCore, analysisCategory=None):
 def analysis(config):  # {{{
     # set default values of start and end dates for climotologies and
     # timeseries
-    if config.has_option('time', 'climo_yr1') and \
-            config.has_option('time', 'climo_yr2'):
+    if config.has_option('climatology', 'start_year') and \
+            config.has_option('climatology', 'end_year'):
         startDate = '{:04d}-01-01_00:00:00'.format(
-            config.getint('time', 'climo_yr1'))
+            config.getint('climatology', 'start_year'))
         endDate = '{:04d}-12-31_23:59:59'.format(
-            config.getint('time', 'climo_yr2'))
+            config.getint('climatology', 'end_year'))
         # use 'getWithDefaults' to set start and end dates without replacing
         # them if they already exist
-        config.getWithDefault('time', 'climo_start_date', startDate)
-        config.getWithDefault('time', 'climo_end_date', endDate)
+        config.getWithDefault('climatology', 'start_date', startDate)
+        config.getWithDefault('climatology', 'end_date', endDate)
 
-    if config.has_option('time', 'timeseries_yr1') and \
-            config.has_option('time', 'timeseries_yr2'):
+    if config.has_option('time_series', 'start_year') and \
+            config.has_option('time_series', 'end_year'):
         startDate = '{:04d}-01-01_00:00:00'.format(
-            config.getint('time', 'timeseries_yr1'))
+            config.getint('time_series', 'start_year'))
         endDate = '{:04d}-12-31_23:59:59'.format(
-            config.getint('time', 'timeseries_yr2'))
+            config.getint('time_series', 'end_year'))
         # use 'getWithDefaults' to set start and end dates without replacing
-        # them if they already exist
-        config.getWithDefault('time', 'timeseries_start_date', startDate)
-        config.getWithDefault('time', 'timeseries_end_date', endDate)
+        # them if they already timeseries
+        config.getWithDefault('time_series', 'start_date', startDate)
+        config.getWithDefault('time_series', 'end_date', endDate)
 
     # Checks on directory/files existence:
     if config.get('case', 'ref_casename_v0') != 'None':
-        path_existence(config, 'paths', 'ref_archive_v0_ocndir')
-        path_existence(config, 'paths', 'ref_archive_v0_seaicedir')
+        path_existence(config, inpath=config.get('paths',
+                                                 'ref_archive_v0_ocndir'))
+        path_existence(config, inpath=config.get('paths',
+                                                 'ref_archive_v0_seaicedir'))
 
     generate_seaice_timeseries = check_generate(
         config, analysisName='seaice_timeseries',  mpasCore='seaice',
@@ -110,9 +106,13 @@ def analysis(config):  # {{{
     if (generate_seaice_timeseries and seaice_compare_obs) or \
             generate_seaice_modelvsobs:
         # we will need sea-ice observations.  Make sure they're there
-        for obsfile in ['obs_iceareaNH', 'obs_iceareaSH', 'obs_icevolNH',
-                        'obs_icevolSH']:
-            path_existence(config, 'seaIceData', obsfile, ignorestr='none')
+        basedir = config.get('seaice_observations', 'basedir')
+        for obsfile in ['areaNH', 'areaSH', 'volNH', 'volSH']:
+            fileName = config.get('seaice_observations', obsfile)
+            if fileName == 'none':
+                continue
+            obspath = '{}/{}'.format(basedir, fileName)
+            path_existence(config, inpath=obspath)
 
     makedirs('{}/{}'.format(config.get('output', 'basedir'),
                             config.get('output', 'plots_subdir')))

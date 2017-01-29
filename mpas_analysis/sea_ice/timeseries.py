@@ -38,8 +38,8 @@ def seaice_timeseries(config, streamMap=None, variableMap=None):
 
     # get a list of timeSeriesStatsMonthly output files from the streams file,
     # reading only those that are between the start and end dates
-    startDate = config.get('time', 'timeseries_start_date')
-    endDate = config.get('time', 'timeseries_end_date')
+    startDate = config.get('time_series', 'start_date')
+    endDate = config.get('time_series', 'end_date')
     streamName = streams.find_stream(streamMap['timeSeriesStats'])
     infiles = streams.readpath(streamName, startDate=startDate,
                                endDate=endDate)

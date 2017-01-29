@@ -53,8 +53,8 @@ def ocn_modelvsobs(config, field, streamMap=None, variableMap=None):
 
     # get a list of timeSeriesStats output files from the streams file,
     # reading only those that are between the start and end dates
-    startDate = config.get('time', 'climo_start_date')
-    endDate = config.get('time', 'climo_end_date')
+    startDate = config.get('climatology', 'start_date')
+    endDate = config.get('climatology', 'end_date')
     streamName = streams.find_stream(streamMap['timeSeriesStats'])
     infiles = streams.readpath(streamName, startDate=startDate,
                                endDate=endDate)
@@ -74,8 +74,8 @@ def ocn_modelvsobs(config, field, streamMap=None, variableMap=None):
         raise IOError('No MPAS-O restart file found: need at least one '
                       'restart file for ocn_modelvsobs calculation')
 
-    climo_yr1 = config.getint('time', 'climo_yr1')
-    climo_yr2 = config.getint('time', 'climo_yr2')
+    climo_yr1 = config.getint('climatology', 'start_year')
+    climo_yr2 = config.getint('climatology', 'end_year')
     yr_offset = config.getint('time', 'yr_offset')
 
     outputTimes = config.getExpression(field + '_modelvsobs',

@@ -44,8 +44,8 @@ def seaice_modelvsobs(config, streamMap=None, variableMap=None):
 
     # get a list of timeSeriesStatsMonthly output files from the streams file,
     # reading only those that are between the start and end dates
-    startDate = config.get('time', 'climo_start_date')
-    endDate = config.get('time', 'climo_end_date')
+    startDate = config.get('climatology', 'start_date')
+    endDate = config.get('climatology', 'end_date')
     streamName = streams.find_stream(streamMap['timeSeriesStats'])
     infiles = streams.readpath(streamName, startDate=startDate,
                                endDate=endDate)
@@ -58,12 +58,12 @@ def seaice_modelvsobs(config, streamMap=None, variableMap=None):
 
     casename = config.get('case', 'casename')
 
-    remapfile = config.get('data', 'mpas_remapfile')
+    remapfile = config.get('remap', 'mpas_remapfile')
     climodir = '{}/{}'.format(output_basedir,
                               config.get('output', 'clim_subdir'))
 
-    climo_yr1 = config.getint('time', 'climo_yr1')
-    climo_yr2 = config.getint('time', 'climo_yr2')
+    climo_yr1 = config.getint('climatology', 'start_year')
+    climo_yr2 = config.getint('climatology', 'end_year')
     yr_offset = config.getint('time', 'yr_offset')
 
     # climodir = "{}/{}".format(climodir, casename)
