@@ -27,12 +27,11 @@ def seaice_timeseries(config, streamMap=None, variableMap=None):
     to their mpas_analysis counterparts.
 
     Author: Xylar Asay-Davis, Milena Veneziani
-    Last Modified: 12/07/2016
+    Last Modified: 01/29/2017
     """
 
     # read parameters from config file
-    indir = config.get('paths', 'archive_dir_ocn')
-
+    indir = config.get('input', 'basedir')
 
     streams_filename = config.get('input', 'seaice_streams_filename')
     streams = StreamsFile(streams_filename, streamsdir=indir)
@@ -72,7 +71,9 @@ def seaice_timeseries(config, streamMap=None, variableMap=None):
     compare_with_obs = config.getboolean('seaice_timeseries',
                                          'compare_with_obs')
 
-    plots_dir = config.get('paths', 'plots_dir')
+    output_basedir = config.get('output', 'basedir')
+    plots_dir = '{}/{}'.format(output_basedir,
+                               config.get('output', 'plots_subdir'))
 
     yr_offset = config.getint('time', 'yr_offset')
 
@@ -117,7 +118,7 @@ def seaice_timeseries(config, streamMap=None, variableMap=None):
 
     # handle the case where the "mesh" file has a spurious time dimension
     if 'Time' in dsmesh.keys():
-      dsmesh = dsmesh.drop('Time')
+        dsmesh = dsmesh.drop('Time')
     ds = ds.merge(dsmesh)
 
     year_start = (pd.to_datetime(ds.Time.min().values)).year
@@ -135,7 +136,8 @@ def seaice_timeseries(config, streamMap=None, variableMap=None):
         if year_start <= year_end_v0:
             ds_v0_tslice = ds_v0.sel(Time=slice(time_start, time_end))
         else:
-            print '   Warning: v0 time series lies outside current bounds of v1 time series. Skipping it.'
+            print '   Warning: v0 time series lies outside current bounds ' \
+                'of v1 time series. Skipping it.'
             ref_casename_v0 = 'None'
 
     # Make Northern and Southern Hemisphere partition:

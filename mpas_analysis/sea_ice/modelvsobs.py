@@ -33,11 +33,11 @@ def seaice_modelvsobs(config, streamMap=None, variableMap=None):
     to their mpas_analysis counterparts.
 
     Author: Xylar Asay-Davis, Milena Veneziani
-    Last Modified: 12/07/2016
+    Last Modified: 01/29/2017
     """
 
     # read parameters from config file
-    indir = config.get('paths', 'archive_dir_ocn')
+    indir = config.get('input', 'basedir')
 
     streams_filename = config.get('input', 'seaice_streams_filename')
     streams = StreamsFile(streams_filename, streamsdir=indir)
@@ -51,13 +51,16 @@ def seaice_modelvsobs(config, streamMap=None, variableMap=None):
                                endDate=endDate)
     print 'Reading files {} through {}'.format(infiles[0], infiles[-1])
 
-    plots_dir = config.get('paths', 'plots_dir')
+    output_basedir = config.get('output', 'basedir')
+    plots_dir = '{}/{}'.format(output_basedir,
+                               config.get('output', 'plots_subdir'))
     obsdir = config.get('paths', 'obs_seaicedir')
 
     casename = config.get('case', 'casename')
 
     remapfile = config.get('data', 'mpas_remapfile')
-    climodir = config.get('data', 'mpas_climodir')
+    climodir = '{}/{}'.format(output_basedir,
+                              config.get('output', 'clim_subdir'))
 
     climo_yr1 = config.getint('time', 'climo_yr1')
     climo_yr2 = config.getint('time', 'climo_yr2')

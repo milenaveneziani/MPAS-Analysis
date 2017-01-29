@@ -41,7 +41,9 @@ def ohc_timeseries(config, streamMap=None, variableMap=None):
 
     compare_with_obs = config.getboolean('ohc_timeseries', 'compare_with_obs')
 
-    plots_dir = config.get('paths', 'plots_dir')
+    output_basedir = config.get('output', 'basedir')
+    plots_dir = '{}/{}'.format(output_basedir,
+                               config.get('output', 'plots_subdir'))
 
     yr_offset = config.getint('time', 'yr_offset')
 
@@ -51,7 +53,7 @@ def ohc_timeseries(config, streamMap=None, variableMap=None):
     plot_titles = config.getExpression('regions', 'plot_titles')
     iregions = config.getExpression('ohc_timeseries', 'regionIndicesToPlot')
 
-    indir = config.get('paths', 'archive_dir_ocn')
+    indir = config.get('input', 'basedir')
 
     namelist_filename = config.get('input', 'ocean_namelist_filename')
     namelist = NameList(namelist_filename, path=indir)
@@ -61,11 +63,13 @@ def ohc_timeseries(config, streamMap=None, variableMap=None):
 
     # Note: input file, not a mesh file because we need dycore specific fields
     # such as refBottomDepth and namelist fields such as config_density0, as
-    # well as simulationStartTime, that are not guaranteed to be in the mesh file.
+    # well as simulationStartTime, that are not guaranteed to be in the mesh
+    # file.
     try:
         inputfile = streams.readpath('restart')[0]
     except ValueError:
-        raise IOError('No MPAS-O restart file found: need at least one restart file for OHC calculation')
+        raise IOError('No MPAS-O restart file found: need at least one '
+                      'restart file for OHC calculation')
 
     # get a list of timeSeriesStats output files from the streams file,
     # reading only those that are between the start and end dates
@@ -161,12 +165,13 @@ def ohc_timeseries(config, streamMap=None, variableMap=None):
             infiles_v0data,
             preprocess=lambda x: preprocess_mpas(x, yearoffset=yr_offset))
         ds_v0 = remove_repeated_time_index(ds_v0)
-    	year_end_v0 = (pd.to_datetime(ds_v0.Time.max().values)).year
-	if year_start <= year_end_v0:
-       	    ds_v0_tslice = ds_v0.sel(Time=slice(time_start, time_end))
-	else:
-            print '   Warning: v0 time series lies outside current bounds of v1 time series. Skipping it.'
-	    ref_casename_v0 = 'None'
+        year_end_v0 = (pd.to_datetime(ds_v0.Time.max().values)).year
+        if year_start <= year_end_v0:
+            ds_v0_tslice = ds_v0.sel(Time=slice(time_start, time_end))
+        else:
+            print '   Warning: v0 time series lies outside current bounds ' \
+                'of v1 time series. Skipping it.'
+            ref_casename_v0 = 'None'
 
     sumLayerMaskValue = ds.sumLayerMaskValue
     avgLayerArea = ds.avgLayerArea
@@ -198,7 +203,8 @@ def ohc_timeseries(config, streamMap=None, variableMap=None):
         ohc_btm = fac*ohc_btm
 
         title = 'OHC, {}, 0-bottom (thick-), 0-700m (thin-), 700-2000m (--),' \
-                ' 2000m-bottom (-.) \n {}'.format(plot_titles[iregion], casename)
+                ' 2000m-bottom (-.) \n {}'.format(plot_titles[iregion],
+                                                  casename)
 
         xlabel = 'Time [years]'
         ylabel = '[x$10^{22}$ J]'

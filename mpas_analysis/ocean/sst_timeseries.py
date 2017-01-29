@@ -27,13 +27,13 @@ def sst_timeseries(config, streamMap=None, variableMap=None):
     to their mpas_analysis counterparts.
 
     Author: Xylar Asay-Davis, Milena Veneziani
-    Last Modified: 12/05/2016
+    Last Modified: 01/29/2017
     """
 
     # Define/read in general variables
     print '  Load SST data...'
     # read parameters from config file
-    indir = config.get('paths', 'archive_dir_ocn')
+    indir = config.get('input', 'basedir')
 
     streams_filename = config.get('input', 'ocean_streams_filename')
     streams = StreamsFile(streams_filename, streamsdir=indir)
@@ -51,7 +51,9 @@ def sst_timeseries(config, streamMap=None, variableMap=None):
     ref_casename_v0 = config.get('case', 'ref_casename_v0')
     indir_v0data = config.get('paths', 'ref_archive_v0_ocndir')
 
-    plots_dir = config.get('paths', 'plots_dir')
+    output_basedir = config.get('output', 'basedir')
+    plots_dir = '{}/{}'.format(output_basedir,
+                               config.get('output', 'plots_subdir'))
 
     yr_offset = config.getint('time', 'yr_offset')
 
@@ -98,7 +100,8 @@ def sst_timeseries(config, streamMap=None, variableMap=None):
         if year_start <= year_end_v0:
             ds_v0_tslice = ds_v0.sel(Time=slice(time_start, time_end))
         else:
-            print '   Warning: v0 time series lies outside current bounds of v1 time series. Skipping it.'
+            print '   Warning: v0 time series lies outside current bounds ' \
+                'of v1 time series. Skipping it.'
             ref_casename_v0 = 'None'
 
     print '  Make plots...'

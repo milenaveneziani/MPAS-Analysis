@@ -114,7 +114,8 @@ def analysis(config):  # {{{
                         'obs_icevolSH']:
             path_existence(config, 'seaIceData', obsfile, ignorestr='none')
 
-    makedirs(config.get('paths', 'plots_dir'))
+    makedirs('{}/{}'.format(config.get('output', 'basedir'),
+                            config.get('output', 'plots_subdir')))
 
     # choose the right rendering backend, depending on whether we're displaying
     # to the screen
