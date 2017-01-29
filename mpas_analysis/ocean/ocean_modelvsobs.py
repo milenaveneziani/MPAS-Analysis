@@ -63,7 +63,9 @@ def ocn_modelvsobs(config, field, streamMap=None, variableMap=None):
     output_basedir = config.get('output', 'basedir')
     plots_dir = '{}/{}'.format(output_basedir,
                                config.get('output', 'plots_subdir'))
-    obsdir = config.get('paths', 'obs_' + field + 'dir')
+    obsdir = '{}/{}'.format(config.get('ocean_observations', 'basedir'),
+                            config.get('ocean_observations',
+                                       field + '_subdir'))
     casename = config.get('case', 'casename')
 
     try:

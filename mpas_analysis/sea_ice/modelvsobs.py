@@ -54,7 +54,7 @@ def seaice_modelvsobs(config, streamMap=None, variableMap=None):
     output_basedir = config.get('output', 'basedir')
     plots_dir = '{}/{}'.format(output_basedir,
                                config.get('output', 'plots_subdir'))
-    obsdir = config.get('paths', 'obs_seaicedir')
+    obsdir = config.get('seaice_observations', 'basedir')
 
     casename = config.get('case', 'casename')
 

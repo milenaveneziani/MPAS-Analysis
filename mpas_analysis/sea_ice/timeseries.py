@@ -55,18 +55,23 @@ def seaice_timeseries(config, streamMap=None, variableMap=None):
                   'iceVolumeCell': '[10$^3$ km$^3$]',
                   'iceThickness': '[m]'}
 
+    obs_basedir = config.get('seaice_observations', 'basedir')
     obs_filenames = {
-        'iceAreaCell': [config.get('seaIceData', 'obs_iceareaNH'),
-                        config.get('seaIceData', 'obs_iceareaSH')],
-        'iceVolumeCell': [config.get('seaIceData', 'obs_icevolNH'),
-                          config.get('seaIceData', 'obs_icevolSH')]}
+        'iceAreaCell': ['{}/{}'.format(obs_basedir,
+                                       config.get('seaice_observations',
+                                                  subdir))
+                        for subdir in ['areaNH', 'areaSH']],
+        'iceVolumeCell': ['{}/{}'.format(obs_basedir,
+                                         config.get('seaice_observations',
+                                                    subdir))
+                          for subdir in ['volNH', 'volSH']]}
 
     # Some plotting rules
     title_font_size = config.get('seaice_timeseries', 'title_font_size')
 
     casename = config.get('case', 'casename')
     ref_casename_v0 = config.get('case', 'ref_casename_v0')
-    indir_v0data = config.get('paths', 'ref_archive_v0_seaicedir')
+    indir_v0data = config.get('seaice_reference', 'basedir')
 
     compare_with_obs = config.getboolean('seaice_timeseries',
                                          'compare_with_obs')

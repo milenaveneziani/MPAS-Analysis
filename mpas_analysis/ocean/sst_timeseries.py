@@ -49,7 +49,7 @@ def sst_timeseries(config, streamMap=None, variableMap=None):
 
     casename = config.get('case', 'casename')
     ref_casename_v0 = config.get('case', 'ref_casename_v0')
-    indir_v0data = config.get('paths', 'ref_archive_v0_ocndir')
+    indir_v0data = config.get('ocean_reference', 'basedir')
 
     output_basedir = config.get('output', 'basedir')
     plots_dir = '{}/{}'.format(output_basedir,

@@ -37,7 +37,7 @@ def ohc_timeseries(config, streamMap=None, variableMap=None):
     # read parameters from config file
     casename = config.get('case', 'casename')
     ref_casename_v0 = config.get('case', 'ref_casename_v0')
-    indir_v0data = config.get('paths', 'ref_archive_v0_ocndir')
+    indir_v0data = config.get('ocean_reference', 'basedir')
 
     compare_with_obs = config.getboolean('ohc_timeseries', 'compare_with_obs')
 
