@@ -48,7 +48,7 @@ def sst_timeseries(config, streamMap=None, variableMap=None):
     print 'Reading files {} through {}'.format(infiles[0], infiles[-1])
 
     casename = config.get('case', 'casename')
-    ref_casename_v0 = config.get('case', 'ref_casename_v0')
+    ref_casename_v0 = config.get('case', 'ref_casename')
     indir_v0data = config.get('ocean_reference', 'basedir')
 
     output_basedir = config.get('output', 'basedir')

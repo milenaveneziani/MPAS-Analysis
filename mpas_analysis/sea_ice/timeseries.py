@@ -70,7 +70,7 @@ def seaice_timeseries(config, streamMap=None, variableMap=None):
     title_font_size = config.get('seaice_timeseries', 'title_font_size')
 
     casename = config.get('case', 'casename')
-    ref_casename_v0 = config.get('case', 'ref_casename_v0')
+    ref_casename_v0 = config.get('case', 'ref_casename')
     indir_v0data = config.get('seaice_reference', 'basedir')
 
     compare_with_obs = config.getboolean('seaice_timeseries',

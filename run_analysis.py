@@ -88,7 +88,7 @@ def analysis(config):  # {{{
         config.getWithDefault('time_series', 'end_date', endDate)
 
     # Checks on directory/files existence:
-    if config.get('case', 'ref_casename_v0') != 'None':
+    if config.get('case', 'ref_casename') != 'None':
         path_existence(config, inpath=config.get('paths',
                                                  'ref_archive_v0_ocndir'))
         path_existence(config, inpath=config.get('paths',
