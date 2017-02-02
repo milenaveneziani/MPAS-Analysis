@@ -5,7 +5,7 @@ Runs MPAS-Analysis via a configuration file (e.g. `config.analysis`)
 specifying analysis options.
 
 Author: Xylar Asay-Davis, Phillip J. Wolfram
-Last Modified: 01/29/2017
+Last Modified: 02/02/2017
 """
 
 import os
@@ -21,25 +21,46 @@ from mpas_analysis.ocean.variable_stream_map import oceanStreamMap, \
 from mpas_analysis.sea_ice.variable_stream_map import seaIceStreamMap, \
     seaIceVariableMap
 
+from mpas_analysis.shared.io.utility import buildConfigFullPath
 
-def path_existence(config, inpath):  # {{{
-    if not (os.path.isdir(inpath) or os.path.isfile(inpath)):
-        errmsg = "Path %s not found. Exiting..." % inpath
-        raise SystemExit(errmsg)
+
+def checkPathExists(path):  # {{{
+    """
+    Raise an exception if the given path does not exist.
+
+    Author: Xylar Asay-Davis
+    Last Modified: 02/02/2017
+    """
+    if not (os.path.isdir(path) or os.path.isfile(path)):
+        raise OSError('Path {} not found'.format(path))
 # }}}
 
 
-def makedirs(inpath):  # {{{
-    if not os.path.exists(inpath):
-        os.makedirs(inpath)
-    return inpath  # }}}
+def makeDirectories(path):  # {{{
+    """
+    Make the given path if it does not already exist.
+
+    Returns the path unchanged.
+
+    Author: Xylar Asay-Davis
+    Last Modified: 02/02/2017
+    """
+
+    try:
+        os.makedirs(path)
+    except OSError:
+        pass
+    return path  # }}}
 
 
-def check_generate(config, analysisName, mpasCore, analysisCategory=None):
+def checkGenerate(config, analysisName, mpasCore, analysisCategory=None):
     # {{{
     """
     determine if a particular analysis of a particular core and (optionally)
     category should be generated.
+
+    Author: Xylar Asay-Davis
+    Last Modified: 02/02/2017
     """
     generateList = config.getExpression('output', 'generate')
     generate = False
@@ -65,57 +86,55 @@ def check_generate(config, analysisName, mpasCore, analysisCategory=None):
 def analysis(config):  # {{{
     # set default values of start and end dates for climotologies and
     # timeseries
-    if config.has_option('climatology', 'start_year') and \
-            config.has_option('climatology', 'end_year'):
+    if config.has_option('climatology', 'startYear') and \
+            config.has_option('climatology', 'endYear'):
         startDate = '{:04d}-01-01_00:00:00'.format(
-            config.getint('climatology', 'start_year'))
+            config.getint('climatology', 'startYear'))
         endDate = '{:04d}-12-31_23:59:59'.format(
-            config.getint('climatology', 'end_year'))
+            config.getint('climatology', 'endYear'))
         # use 'getWithDefaults' to set start and end dates without replacing
         # them if they already exist
-        config.getWithDefault('climatology', 'start_date', startDate)
-        config.getWithDefault('climatology', 'end_date', endDate)
+        config.getWithDefault('climatology', 'startDate', startDate)
+        config.getWithDefault('climatology', 'endDate', endDate)
 
-    if config.has_option('time_series', 'start_year') and \
-            config.has_option('time_series', 'end_year'):
+    if config.has_option('timeSeries', 'startYear') and \
+            config.has_option('timeSeries', 'endYear'):
         startDate = '{:04d}-01-01_00:00:00'.format(
-            config.getint('time_series', 'start_year'))
+            config.getint('timeSeries', 'startYear'))
         endDate = '{:04d}-12-31_23:59:59'.format(
-            config.getint('time_series', 'end_year'))
+            config.getint('timeSeries', 'endYear'))
         # use 'getWithDefaults' to set start and end dates without replacing
         # them if they already timeseries
-        config.getWithDefault('time_series', 'start_date', startDate)
-        config.getWithDefault('time_series', 'end_date', endDate)
+        config.getWithDefault('timeSeries', 'startDate', startDate)
+        config.getWithDefault('timeSeries', 'endDate', endDate)
 
     # Checks on directory/files existence:
-    if config.get('case', 'ref_casename') != 'None':
-        path_existence(config, inpath=config.get('paths',
-                                                 'ref_archive_v0_ocndir'))
-        path_existence(config, inpath=config.get('paths',
-                                                 'ref_archive_v0_seaicedir'))
+    if config.get('runs', 'preprocessedReferenceRunName') != 'None':
+        checkPathExists(config.get('oceanPreprocessedReference',
+                                   'baseDirectory'))
+        checkPathExists(config.get('seaIcePreprocessedReference',
+                                   'baseDirectory'))
 
-    generate_seaice_timeseries = check_generate(
-        config, analysisName='seaice_timeseries',  mpasCore='seaice',
-        analysisCategory='timeseries')
-    seaice_compare_obs = config.getboolean('seaice_timeseries',
-                                           'compare_with_obs')
-    generate_seaice_modelvsobs = check_generate(
-        config, analysisName='seaice_modelvsobs',  mpasCore='seaice',
-        analysisCategory='modelvsobs')
+    generateTimeSeriesSeaIce = checkGenerate(
+        config, analysisName='timeSeriesSeaIceAreaVol',  mpasCore='seaIce',
+        analysisCategory='timeSeries')
+    compareTimeSeriesSeaIceWithObservations = config.getboolean(
+            'timeSeriesSeaIceAreaVol', 'compareWithObservations')
+    generateRegriddedSeaIce = checkGenerate(
+        config, analysisName='regriddedSeaIceConcThick',  mpasCore='seaIce',
+        analysisCategory='regriddedHorizontal')
 
-    if (generate_seaice_timeseries and seaice_compare_obs) or \
-            generate_seaice_modelvsobs:
+    if ((generateTimeSeriesSeaIce and
+         compareTimeSeriesSeaIceWithObservations) or generateRegriddedSeaIce):
         # we will need sea-ice observations.  Make sure they're there
-        basedir = config.get('seaice_observations', 'basedir')
-        for obsfile in ['areaNH', 'areaSH', 'volNH', 'volSH']:
-            fileName = config.get('seaice_observations', obsfile)
-            if fileName == 'none':
+        baseDirectory = config.get('seaIceObservations', 'baseDirectory')
+        for observationName in ['areaNH', 'areaSH', 'volNH', 'volSH']:
+            fileName = config.get('seaIceObservations', observationName)
+            if fileName.lower() == 'none':
                 continue
-            obspath = '{}/{}'.format(basedir, fileName)
-            path_existence(config, inpath=obspath)
+            checkPathExists('{}/{}'.format(baseDirectory, fileName))
 
-    makedirs('{}/{}'.format(config.get('output', 'basedir'),
-                            config.get('output', 'plots_subdir')))
+    makeDirectories(buildConfigFullPath(config, 'output', 'plotsSubdirectory'))
 
     # choose the right rendering backend, depending on whether we're displaying
     # to the screen
@@ -126,61 +145,61 @@ def analysis(config):  # {{{
     # analysis can only be imported after the right MPL renderer is selected
 
     # GENERATE OCEAN DIAGNOSTICS
-    if check_generate(config, analysisName='ohc_timeseries', mpasCore='ocean',
-                      analysisCategory='timeseries'):
+    if checkGenerate(config, analysisName='timeSeriesOHC', mpasCore='ocean',
+                     analysisCategory='timeSeries'):
         print ""
         print "Plotting OHC time series..."
         from mpas_analysis.ocean.ohc_timeseries import ohc_timeseries
         ohc_timeseries(config, streamMap=oceanStreamMap,
                        variableMap=oceanVariableMap)
 
-    if check_generate(config, analysisName='sst_timeseries', mpasCore='ocean',
-                      analysisCategory='timeseries'):
+    if checkGenerate(config, analysisName='timeSeriesSST', mpasCore='ocean',
+                     analysisCategory='timeSeries'):
         print ""
         print "Plotting SST time series..."
         from mpas_analysis.ocean.sst_timeseries import sst_timeseries
         sst_timeseries(config, streamMap=oceanStreamMap,
                        variableMap=oceanVariableMap)
 
-    if check_generate(config, analysisName='nino34_timeseries',
-                      mpasCore='ocean', analysisCategory='timeseries'):
+    if checkGenerate(config, analysisName='timeSeriesNino34',
+                     mpasCore='ocean', analysisCategory='timeSeries'):
         print ""
         print "Plotting Nino3.4 time series..."
         # from mpas_analysis.ocean.nino34_timeseries import nino34_timeseries
         # nino34_timeseries(config)
 
-    if check_generate(config, analysisName='mht_timeseries', mpasCore='ocean',
-                      analysisCategory='timeseries'):
+    if checkGenerate(config, analysisName='timeSeriesMHT', mpasCore='ocean',
+                     analysisCategory='timeSeries'):
         print ""
         print "Plotting Meridional Heat Transport (MHT)..."
         # from mpas_analysis.ocean.mht_timeseries import mht_timeseries
         # mht_timeseries(config)
 
-    if check_generate(config, analysisName='moc_timeseries', mpasCore='ocean',
-                      analysisCategory='timeseries'):
+    if checkGenerate(config, analysisName='timeSeriesMOC', mpasCore='ocean',
+                     analysisCategory='timeSeries'):
         print ""
         print "Plotting Meridional Overturning Circulation (MOC)..."
         # from mpas_analysis.ocean.moc_timeseries import moc_timeseries
         # moc_timeseries(config)
 
-    if check_generate(config, analysisName='sst_modelvsobs', mpasCore='ocean',
-                      analysisCategory='modelvsobs'):
+    if checkGenerate(config, analysisName='regriddedSST', mpasCore='ocean',
+                     analysisCategory='regriddedHorizontal'):
         print ""
         print "Plotting 2-d maps of SST climatologies..."
         from mpas_analysis.ocean.ocean_modelvsobs import ocn_modelvsobs
         ocn_modelvsobs(config, 'sst', streamMap=oceanStreamMap,
                        variableMap=oceanVariableMap)
 
-    if check_generate(config, analysisName='mld_modelvsobs', mpasCore='ocean',
-                      analysisCategory='modelvsobs'):
+    if checkGenerate(config, analysisName='regriddedMLD', mpasCore='ocean',
+                     analysisCategory='regriddedHorizontal'):
         print ""
         print "Plotting 2-d maps of MLD climatologies..."
         from mpas_analysis.ocean.ocean_modelvsobs import ocn_modelvsobs
         ocn_modelvsobs(config, 'mld', streamMap=oceanStreamMap,
                        variableMap=oceanVariableMap)
 
-    if check_generate(config, analysisName='sss_modelvsobs', mpasCore='ocean',
-                      analysisCategory='modelvsobs'):
+    if checkGenerate(config, analysisName='regriddedSSS', mpasCore='ocean',
+                     analysisCategory='regriddedHorizontal'):
         print ""
         print "Plotting 2-d maps of SSS climatologies..."
         from mpas_analysis.ocean.ocean_modelvsobs import ocn_modelvsobs
@@ -188,16 +207,17 @@ def analysis(config):  # {{{
                        variableMap=oceanVariableMap)
 
     # GENERATE SEA-ICE DIAGNOSTICS
-    if check_generate(config, analysisName='seaice_timeseries',
-                      mpasCore='seaice', analysisCategory='timeseries'):
+    if checkGenerate(config, analysisName='timeSeriesSeaIceAreaVol',
+                     mpasCore='seaIce', analysisCategory='timeSeries'):
         print ""
         print "Plotting sea-ice area and volume time series..."
         from mpas_analysis.sea_ice.timeseries import seaice_timeseries
         seaice_timeseries(config, streamMap=seaIceStreamMap,
                           variableMap=seaIceVariableMap)
 
-    if check_generate(config, analysisName='seaice_modelvsobs',
-                      mpasCore='seaice', analysisCategory='modelvsobs'):
+    if checkGenerate(config, analysisName='regriddedSeaIceConcThick',
+                     mpasCore='seaIce',
+                     analysisCategory='regriddedHorizontal'):
         print ""
         print "Plotting 2-d maps of sea-ice concentration and thickness " \
             "climatologies..."
