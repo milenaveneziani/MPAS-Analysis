@@ -92,15 +92,17 @@ def sst_timeseries(config, streamMap=None, variableMap=None):
 
     if preprocessedReferenceRunName != 'None':
         print '  Load in SST for a preprocesses reference run...'
-        inFilesPreprocessed = '{}/SST.{}.year*.nc'.format(preprocessedInputDirectory,
-                                                     preprocessedReferenceRunName)
+        inFilesPreprocessed = '{}/SST.{}.year*.nc'.format(
+            preprocessedInputDirectory, preprocessedReferenceRunName)
         dsPreprocessed = xr.open_mfdataset(
             inFilesPreprocessed,
             preprocess=lambda x: preprocess_mpas(x, yearoffset=yearOffset))
         dsPreprocessed = remove_repeated_time_index(dsPreprocessed)
-        yearEndPreprocessed = (pd.to_datetime(dsPreprocessed.Time.max().values)).year
+        yearEndPreprocessed = \
+            (pd.to_datetime(dsPreprocessed.Time.max().values)).year
         if yearStart <= yearEndPreprocessed:
-            dsPreprocessedTimeSlice = dsPreprocessed.sel(Time=slice(timeStart, timeEnd))
+            dsPreprocessedTimeSlice = \
+                dsPreprocessed.sel(Time=slice(timeStart, timeEnd))
         else:
             print '   Warning: Preprocessed time series ends before the ' \
                 'timeSeries startYear and will not be plotted.'
@@ -118,18 +120,21 @@ def sst_timeseries(config, streamMap=None, variableMap=None):
         SST = SSTregions[:, regionIndex]
 
         if preprocessedReferenceRunName != 'None':
-            figureName = '{}/sst_{}_{}_{}.png'.format(plotsDirectory, regions[regionIndex],
-                                                   mainRunName, preprocessedReferenceRunName)
+            figureName = '{}/sst_{}_{}_{}.png'.format(
+                plotsDirectory, regions[regionIndex], mainRunName,
+                preprocessedReferenceRunName)
             SST_v0 = dsPreprocessedTimeSlice.SST
 
             title = '{}\n {} (b-)'.format(title, preprocessedReferenceRunName)
-            timeseries_analysis_plot(config, [SST, SST_v0], movingAveragePoints,
+            timeseries_analysis_plot(config, [SST, SST_v0],
+                                     movingAveragePoints,
                                      title, xLabel, yLabel, figureName,
                                      lineStyles=['r-', 'b-'],
                                      lineWidths=[1.2, 1.2])
         else:
-            figureName = '{}/sst_{}_{}.png'.format(plotsDirectory, regions[regionIndex],
-                                                mainRunName)
-            timeseries_analysis_plot(config, [SST], movingAveragePoints, title, xLabel,
-                                     yLabel, figureName, lineStyles=['r-'],
-                                     lineWidths=[1.2])
+            figureName = '{}/sst_{}_{}.png'.format(plotsDirectory,
+                                                   regions[regionIndex],
+                                                   mainRunName)
+            timeseries_analysis_plot(config, [SST], movingAveragePoints, title,
+                                     xLabel, yLabel, figureName,
+                                     lineStyles=['r-'], lineWidths=[1.2])
