@@ -379,7 +379,7 @@ compareWithObservations = True
 
 # Region names for basin MOC calculation.
 # Supported options are Atlantic and IndoPacific
-regionNames = ['Atlantic']
+regionNames = ['Atlantic_MOC']
 
 # Mask file for post-processing regional MOC computation
 regionMaskFiles = /path/to/MOCregional/mapping/file
@@ -397,25 +397,25 @@ regionMaskFiles = /path/to/MOCregional/mapping/file
 
 # Size of latitude bins over which MOC streamfunction is integrated
 latBinSizeGlobal = 1.
-latBinSizeAtlantic = 0.5
-latBinSizeIndoPacific = 0.5
+latBinSizeAtlantic_MOC = 0.5
+latBinSizeIndoPacific_MOC = 0.5
 
 # colormap for model results
 colormapNameGlobal = RdYlBu_r
-colormapNameAtlantic = RdYlBu_r
-colormapNameIndoPacific = RdYlBu_r
+colormapNameAtlantic_MOC = RdYlBu_r
+colormapNameIndoPacific_MOC = RdYlBu_r
 # colormap indices for contour color
 colormapIndicesGlobal = [0, 40, 80, 110, 140, 170, 200, 230, 255]
-colormapIndicesAtlantic = [0, 40, 80, 110, 140, 170, 200, 230, 255]
-colormapIndicesIndoPacific = [0, 40, 80, 110, 140, 170, 200, 230, 255]
+colormapIndicesAtlantic_MOC = [0, 40, 80, 110, 140, 170, 200, 230, 255]
+colormapIndicesIndoPacific_MOC = [0, 40, 80, 110, 140, 170, 200, 230, 255]
 # colorbar levels/values for contour boundaries
 colorbarLevelsGlobal = [-20, -10, -5, -2, 2, 5, 10, 20, 30, 40]
-colorbarLevelsAtlantic = [-10, -5, -2, 0, 5, 8, 10, 14, 18, 22]
-colorbarLevelsIndoPacific = [-10, -5, -2, 0, 5, 8, 10, 14, 18, 22]
+colorbarLevelsAtlantic_MOC = [-10, -5, -2, 0, 5, 8, 10, 14, 18, 22]
+colorbarLevelsIndoPacific_MOC = [-10, -5, -2, 0, 5, 8, 10, 14, 18, 22]
 # contour line levels
 contourLevelsGlobal = np.arange(-25.1, 35.1, 10)
-contourLevelsAtlantic = np.arange(-8, 20.1, 2)
-contourLevelsIndoPacific = np.arange(-8, 20.1, 2)
+contourLevelsAtlantic_MOC = np.arange(-8, 20.1, 2)
+contourLevelsIndoPacific_MOC = np.arange(-8, 20.1, 2)
 
 # compare to observations?
 compareWithObservations = True

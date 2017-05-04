@@ -286,20 +286,22 @@ def _compute_moc_climo_postprocess(config, runStreams, variableMap, calendar,
     if not os.path.exists(regionMaskFiles):
         raise IOError('Regional masking file for MOC calculation '
                       'does not exist')
-    iRegion = 0
+    print '\n  Reading region and transect masks from file...'
+    ncFileRegional = netCDF4.Dataset(regionMaskFiles, mode='r')
+    regionsAllNames = netCDF4.chartostring(ncFileRegional.variables['regionNames'][:, :])
+    regionsAllNames = np.ndarray.tolist(regionsAllNames)
+    print regionsAllNames
+    maxEdgesInTransect = \
+        ncFileRegional.dimensions['maxEdgesInTransect'].size
     for region in regionNames:
-        print '\n  Reading region and transect mask for {}...'.format(region)
-        ncFileRegional = netCDF4.Dataset(regionMaskFiles, mode='r')
-        maxEdgesInTransect = \
-            ncFileRegional.dimensions['maxEdgesInTransect'].size
+        iRegion = regionsAllNames.index(region)
+        print iRegion
         transectEdgeMaskSigns = \
             ncFileRegional.variables['transectEdgeMaskSigns'][:, iRegion]
         transectEdgeGlobalIDs = \
             ncFileRegional.variables['transectEdgeGlobalIDs'][iRegion, :]
         regionCellMask = \
             ncFileRegional.variables['regionCellMasks'][:, iRegion]
-        ncFileRegional.close()
-        iRegion += 1
 
         indRegion = np.where(regionCellMask == 1)
         dictRegion = {
@@ -308,6 +310,7 @@ def _compute_moc_climo_postprocess(config, runStreams, variableMap, calendar,
             'maxEdgesInTransect{}'.format(region): maxEdgesInTransect,
             'transectEdgeMaskSigns{}'.format(region): transectEdgeMaskSigns,
             'transectEdgeGlobalIDs{}'.format(region): transectEdgeGlobalIDs}
+    ncFileRegional.close()
     # Add Global regionCellMask=1 everywhere to make the algorithm
     # for the global moc similar to that of the regional moc
     dictRegion['GlobalCellMask'] = np.ones(np.size(latCell))
@@ -462,14 +465,14 @@ def _compute_moc_time_series_postprocess(config, runStreams, variableMap,
                                 startDate=dictTseries['startDateTseries'],
                                 endDate=dictTseries['endDateTseries'],
                                 chunking=chunking)
-    latAtlantic = mocDictClimo['latAtlantic']['data']
+    latAtlantic = mocDictClimo['latAtlantic_MOC']['data']
     dLat = latAtlantic - 26.5
     indlat26 = np.where(dLat == np.amin(np.abs(dLat)))
 
-    maxEdgesInTransect = dictRegion['maxEdgesInTransectAtlantic']
-    transectEdgeGlobalIDs = dictRegion['transectEdgeGlobalIDsAtlantic']
-    transectEdgeMaskSigns = dictRegion['transectEdgeMaskSignsAtlantic']
-    regionCellMask = dictRegion['AtlanticCellMask']
+    maxEdgesInTransect = dictRegion['maxEdgesInTransectAtlantic_MOC']
+    transectEdgeGlobalIDs = dictRegion['transectEdgeGlobalIDsAtlantic_MOC']
+    transectEdgeMaskSigns = dictRegion['transectEdgeMaskSignsAtlantic_MOC']
+    regionCellMask = dictRegion['Atlantic_MOCCellMask']
 
     outputDirectory = build_config_full_path(config, 'output',
                                              'timeseriesSubdirectory')
