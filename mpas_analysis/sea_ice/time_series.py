@@ -198,6 +198,7 @@ class TimeSeriesSeaIce(SeaIceAnalysisTask):
                 print '   Warning: Preprocessed time series ends before the ' \
                     'timeSeries startYear and will not be plotted.'
                 preprocessedReferenceRunName = 'None'
+            dsPreprocessed.close()
 
         norm = {'iceArea': 1e-6,  # m^2 to km^2
                 'iceVolume': 1e-12,  # m^3 to 10^3 km^3
@@ -294,6 +295,7 @@ class TimeSeriesSeaIce(SeaIceAnalysisTask):
                     timeVariableName='xtime')
                 dsPreprocessedTimeSlice = dsPreprocessed.sel(
                     Time=slice(timeStart, timeEnd))
+                dsPreprocessed.close()
                 key = (hemisphere, 'iceArea')
                 preprocessed[key] = dsPreprocessedTimeSlice[
                     'icearea_{}'.format(hemisphere.lower())]
@@ -308,6 +310,7 @@ class TimeSeriesSeaIce(SeaIceAnalysisTask):
                     timeVariableName='xtime')
                 dsPreprocessedTimeSlice = dsPreprocessed.sel(
                     Time=slice(timeStart, timeEnd))
+                dsPreprocessed.close()
                 key = (hemisphere, 'iceVolume')
                 preprocessed[key] = dsPreprocessedTimeSlice[
                     'icevolume_{}'.format(hemisphere.lower())]
@@ -388,10 +391,6 @@ class TimeSeriesSeaIce(SeaIceAnalysisTask):
                                                    calendar=calendar)
 
         ds.close()
-        if preprocessedReferenceRunName != 'None':
-            dsPreprocessed.close()
-        if compareWithObservations:
-            dsObs.close()
         # }}}
 
     def _replicate_cycle(self, ds, dsToReplicate, calendar):  # {{{
