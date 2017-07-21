@@ -290,6 +290,7 @@ class ClimatologyMapOcean(AnalysisTask):  # {{{
                                    diffTitle='Model-Observations',
                                    cbarlabel=self.unitsLabel)
 
+        ds.close()
         # }}}
 
     # }}}

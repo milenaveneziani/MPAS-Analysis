@@ -181,6 +181,7 @@ class IndexNino34(AnalysisTask):  # {{{
                             redNoiseObs, spectra30yrs, conf9530, conf9930,
                             redNoise30, 'NINO3.4 power spectrum', modelTitle,
                             obsTitle, figureName, linewidths=2)
+        ds.close()
     # }}}
 
     def _compute_nino34_index(self, regionSST, calendar):  # {{{

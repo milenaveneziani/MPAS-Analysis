@@ -277,6 +277,7 @@ class StreamfunctionMOC(AnalysisTask):  # {{{
         cache_climatologies(ds, monthDictionary['ANN'],
                             config, cachePrefix, self.calendar,
                             printProgress=True)
+        ds.close()
         # }}}
 
     def _compute_moc_climo_postprocess(self):  # {{{
@@ -509,6 +510,8 @@ class StreamfunctionMOC(AnalysisTask):  # {{{
             ds.Time.values,  comp_moc_part, outputFileTseries,
             self.calendar, yearsPerCacheUpdate=1,  printProgress=False)
 
+        ds.close()
+
         return dsMOCTimeSeries  # }}}
 
     def _compute_moc_time_series_part(self, ds, areaCell, latCell, indlat26,
@@ -559,6 +562,7 @@ class StreamfunctionMOC(AnalysisTask):  # {{{
                                     'attrs': {'units': 'Sv (10^6 m^3/s)',
                                               'description': description}}}}
         dsMOC = xr.Dataset.from_dict(dictonary)
+
         return dsMOC
 
     # def _compute_moc_analysismember(self):

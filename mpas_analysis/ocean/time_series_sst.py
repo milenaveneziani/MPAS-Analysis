@@ -214,6 +214,9 @@ class TimeSeriesSST(AnalysisTask):
                                          title, xLabel, yLabel, figureName,
                                          lineStyles=['r-'], lineWidths=[1.2],
                                          calendar=calendar)
+        ds.close()
+        if preprocessedReferenceRunName != 'None':
+            dsPreprocessed.close()
         # }}}
 
     def _compute_sst_part(self, timeIndices, firstCall):  # {{{

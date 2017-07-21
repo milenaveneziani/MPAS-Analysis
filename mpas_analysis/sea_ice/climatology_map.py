@@ -146,6 +146,8 @@ class ClimatologyMapSeaIce(SeaIceAnalysisTask):
 
         self._compute_and_plot_thickness()   # }}}
 
+        self.ds.close()
+
     def _compute_and_plot_concentration(self):
         '''
         computes seasonal climatologies and plots model results, observations

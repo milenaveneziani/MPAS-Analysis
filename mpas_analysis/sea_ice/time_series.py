@@ -387,6 +387,11 @@ class TimeSeriesSeaIce(SeaIceAnalysisTask):
                                                    titleFontSize=titleFontSize,
                                                    calendar=calendar)
 
+        ds.close()
+        if preprocessedReferenceRunName != 'None':
+            dsPreprocessed.close()
+        if compareWithObservations:
+            dsObs.close()
         # }}}
 
     def _replicate_cycle(self, ds, dsToReplicate, calendar):  # {{{

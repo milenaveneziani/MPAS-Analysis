@@ -278,6 +278,7 @@ class MeridionalHeatTransport(AnalysisTask):  # {{{
                               title, xLabel, yLabel, figureName,
                               xLim=xLimGlobal, yLim=depthLimGlobal,
                               invertYAxis=False)
+        ds.close()
         # }}}
 
     # }}}

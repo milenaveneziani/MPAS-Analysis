@@ -328,6 +328,9 @@ class TimeSeriesOHC(AnalysisTask):
                                          lineStyles=['r-', 'r-', 'r--', 'r-.'],
                                          lineWidths=[2, 1, 1.5, 1.5],
                                          calendar=calendar)
+        ds.close()
+        if preprocessedReferenceRunName != 'None':
+            dsPreprocessed.close()
         # }}}
 
     def _compute_ohc_part(self, timeIndices, firstCall):  # {{{
